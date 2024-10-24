@@ -1,4 +1,4 @@
-name: Deploy to AWS Elastic Beanstalk via ECR
+name: Deploy to AWS App Runner via ECR
 
 on:
   push:
@@ -15,8 +15,6 @@ jobs:
       ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
       ECR_REPOSITORY: pokemon
       IMAGE_TAG: ${{ github.sha }}
-      EB_APPLICATION_NAME: ${{ secrets.AWS_EB_APPLICATION_NAME }}
-      EB_ENVIRONMENT_NAME: ${{ secrets.AWS_EB_ENVIRONMENT_NAME }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -43,32 +41,22 @@ jobs:
         run: |
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Create Dockerrun.aws.json file
+      - name: Create or Update AWS App Runner Service
         run: |
-          echo '{
-            "AWSEBDockerrunVersion": "1",
-            "Image": {
-              "Name": "'"$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"'",
-              "Update": "true"
-            },
-            "Ports": [
-              {
-                "ContainerPort": "3000"
+          aws apprunner describe-services --service-name ${{ secrets.AWS_APP_RUNNER_SERVICE_NAME }} || \
+          aws apprunner create-service --service-name ${{ secrets.AWS_APP_RUNNER_SERVICE_NAME }} \
+            --source-configuration "{
+              \"ImageRepository\": {
+                \"ImageIdentifier\": \"${{ env.ECR_REGISTRY }}/pokemon:${{ github.sha }}\",
+                \"ImageConfiguration\": {\"Port\": \"3000\"},
+                \"ImageRepositoryType\": \"ECR\"
               }
-            ]
-          }' > Dockerrun.aws.json
-
-      - name: Package Dockerrun.aws.json
-        run: |
-          zip -r deploy.zip Dockerrun.aws.json
-
-      - name: Deploy to Elastic Beanstalk
-        uses: einaregilsson/beanstalk-deploy@v21
-        with:
-          aws_access_key: ${{ env.AWS_ACCESS_KEY }}
-          aws_secret_key: ${{ env.AWS_SECRET_KEY }}
-          region: ${{ env.AWS_REGION }}
-          application_name: ${{ env.EB_APPLICATION_NAME }}
-          environment_name: ${{ env.EB_ENVIRONMENT_NAME }}
-          version_label: ${{ github.sha }}
-          deployment_package: deploy.zip
+            }" || \
+          aws apprunner update-service --service-arn $(aws apprunner describe-services --service-name ${{ secrets.AWS_APP_RUNNER_SERVICE_NAME }} --query "Service.SvcArn" --output text) \
+            --source-configuration "{
+              \"ImageRepository\": {
+                \"ImageIdentifier\": \"${{ env.ECR_REGISTRY }}/pokemon:${{ github.sha }}\",
+                \"ImageConfiguration\": {\"Port\": \"3000\"},
+                \"ImageRepositoryType\": \"ECR\"
+              }
+            }"
