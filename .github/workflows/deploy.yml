@@ -43,20 +43,25 @@ jobs:
 
       - name: Create or Update AWS App Runner Service
         run: |
-          aws apprunner describe-services --service-name ${{ secrets.AWS_APP_RUNNER_SERVICE_NAME }} || \
-          aws apprunner create-service --service-name ${{ secrets.AWS_APP_RUNNER_SERVICE_NAME }} \
-            --source-configuration "{
-              \"ImageRepository\": {
-                \"ImageIdentifier\": \"${{ env.ECR_REGISTRY }}/pokemon:${{ github.sha }}\",
-                \"ImageConfiguration\": {\"Port\": \"3000\"},
-                \"ImageRepositoryType\": \"ECR\"
-              }
-            }" || \
-          aws apprunner update-service --service-arn $(aws apprunner describe-services --service-name ${{ secrets.AWS_APP_RUNNER_SERVICE_NAME }} --query "Service.SvcArn" --output text) \
-            --source-configuration "{
-              \"ImageRepository\": {
-                \"ImageIdentifier\": \"${{ env.ECR_REGISTRY }}/pokemon:${{ github.sha }}\",
-                \"ImageConfiguration\": {\"Port\": \"3000\"},
-                \"ImageRepositoryType\": \"ECR\"
-              }
-            }"
+          SERVICE_ARN=$(aws apprunner describe-service --service-arn ${{ secrets.AWS_APP_RUNNER_SERVICE_ARN }} --query "Service.ServiceArn" --output text 2>/dev/null || echo "")
+          if [ -z "$SERVICE_ARN" ]; then
+            echo "Creating new App Runner service..."
+            aws apprunner create-service --service-name ${{ secrets.AWS_APP_RUNNER_SERVICE_NAME }} \
+              --source-configuration "{
+                \"ImageRepository\": {
+                  \"ImageIdentifier\": \"${{ env.ECR_REGISTRY }}/pokemon:${{ github.sha }}\",
+                  \"ImageConfiguration\": {\"Port\": \"3000\"},
+                  \"ImageRepositoryType\": \"ECR\"
+                }
+              }"
+          else
+            echo "Updating existing App Runner service..."
+            aws apprunner update-service --service-arn $SERVICE_ARN \
+              --source-configuration "{
+                \"ImageRepository\": {
+                  \"ImageIdentifier\": \"${{ env.ECR_REGISTRY }}/pokemon:${{ github.sha }}\",
+                  \"ImageConfiguration\": {\"Port\": \"3000\"},
+                  \"ImageRepositoryType\": \"ECR\"
+                }
+              }"
+          fi
