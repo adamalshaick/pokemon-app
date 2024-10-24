@@ -1,7 +1,7 @@
 export const fetchCurrentTime = async (apiUrl = "https://www.timeapi.io/api/Time/current/zone?timeZone=Europe/Warsaw") => {
   const res = await fetch(apiUrl)
   console.log(res, "?????")
-  const data = await res.json()
+  //   const data = await res.json()
 
   if (!res.ok) {
     throw new Error("Failed to fetch the time")
