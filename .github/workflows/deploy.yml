@@ -43,7 +43,7 @@ jobs:
 
       - name: Create or Update AWS App Runner Service
         run: |
-          SERVICE_ARN=$(aws apprunner describe-service --service-arn ${{ secrets.AWS_APP_RUNNER_SERVICE_ARN }} --query "Service.ServiceArn" --output text 2>/dev/null || echo "")
+          SERVICE_ARN=$(aws apprunner describe-service --service-name ${{ secrets.AWS_APP_RUNNER_SERVICE_NAME }} --query "Service.ServiceArn" --output text 2>/dev/null || echo "")
           if [ -z "$SERVICE_ARN" ]; then
             echo "Creating new App Runner service..."
             aws apprunner create-service --service-name ${{ secrets.AWS_APP_RUNNER_SERVICE_NAME }} \
