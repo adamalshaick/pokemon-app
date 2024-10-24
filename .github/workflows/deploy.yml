@@ -1,0 +1,70 @@
+name: Deploy to AWS Elastic Beanstalk via ECR
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+      ECR_REPOSITORY: pokemon
+      IMAGE_TAG: ${{ github.sha }}
+      EB_APPLICATION_NAME: ${{ secrets.AWS_EB_APPLICATION_NAME }}
+      EB_ENVIRONMENT_NAME: ${{ secrets.AWS_EB_ENVIRONMENT_NAME }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
+        run: |
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+
+      - name: Tag Docker image
+        run: |
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Push Docker image to Amazon ECR
+        run: |
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Create Dockerrun.aws.json file
+        run: |
+          echo '{
+            "AWSEBDockerrunVersion": "1",
+            "Image": {
+              "Name": "'"$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"'",
+              "Update": "true"
+            },
+            "Ports": [
+              {
+                "ContainerPort": "3000"
+              }
+            ]
+          }' > Dockerrun.aws.json
+
+      - name: Package Dockerrun.aws.json
+        run: |
+          zip -r deploy.zip Dockerrun.aws.json
+
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_region: ${{ env.AWS_REGION }}
+          application_name: ${{ env.EB_APPLICATION_NAME }}
+          environment_name: ${{ env.EB_ENVIRONMENT_NAME }}
+          version_label: ${{ github.sha }}
+          deployment_package: deploy.zip
