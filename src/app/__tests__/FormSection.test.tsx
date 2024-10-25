@@ -18,10 +18,12 @@ beforeEach(() => {
   mockUseRouter.mockReturnValue({
     push: jest.fn(),
     replace: jest.fn()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any)
 
   mockUseSearchParams.mockReturnValue({
     get: jest.fn().mockReturnValue("defaultParam")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any)
 })
 

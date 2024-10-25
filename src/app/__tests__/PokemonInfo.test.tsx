@@ -5,6 +5,7 @@ import { ThemeProvider } from "styled-components"
 import theme from "@/app/styles/theme"
 
 describe("PokemonInfo Component", () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderComponent = (data: any) =>
     render(
       <ThemeProvider theme={theme}>
