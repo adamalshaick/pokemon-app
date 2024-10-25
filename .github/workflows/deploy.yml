@@ -8,6 +8,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
+      NEXT_PUBLIC_POKEMON_API_URL: https://pokeapi.co/api/v2/pokemon
+      NEXT_PUBLIC_TIME_API_URL: https://www.timeapi.io/api/Time/current/zone
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -32,6 +34,9 @@ jobs:
 
       - name: Build application
         run: npm run build
+        env:
+          NEXT_PUBLIC_POKEMON_API_URL: ${{ env.NEXT_PUBLIC_POKEMON_API_URL }}
+          NEXT_PUBLIC_TIME_API_URL: ${{ env.NEXT_PUBLIC_TIME_API_URL }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
