@@ -22,7 +22,7 @@ export const Input: FC<InputType> = (props) => {
 
   return (
     <FormControl>
-      <StyledLabel>{label}</StyledLabel>
+      <StyledLabel htmlFor={id}>{label}</StyledLabel>
       <StyledInput id={id} {...register(id)} placeholder={placeholder} type={type} />
     </FormControl>
   )
