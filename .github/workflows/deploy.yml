@@ -8,8 +8,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_POKEMON_API_URL: https://pokeapi.co/api/v2/pokemon
-      NEXT_PUBLIC_TIME_API_URL: https://www.timeapi.io/api/Time/current/zone
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -17,6 +15,8 @@ jobs:
       ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
       ECR_REPOSITORY: pokemon
       IMAGE_TAG: ${{ github.sha }}
+      NEXT_PUBLIC_POKEMON_API_URL: https://pokeapi.co/api/v2/pokemon
+      NEXT_PUBLIC_TIME_API_URL: https://www.timeapi.io/api/Time/current/zone
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -32,12 +32,6 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Build application
-        run: npm run build
-        env:
-          NEXT_PUBLIC_POKEMON_API_URL: ${{ env.NEXT_PUBLIC_POKEMON_API_URL }}
-          NEXT_PUBLIC_TIME_API_URL: ${{ env.NEXT_PUBLIC_TIME_API_URL }}
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -50,7 +44,10 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+          docker build \
+            --build-arg NEXT_PUBLIC_POKEMON_API_URL=${{ env.NEXT_PUBLIC_POKEMON_API_URL }} \
+            --build-arg NEXT_PUBLIC_TIME_API_URL=${{ env.NEXT_PUBLIC_TIME_API_URL }} \
+            -t $ECR_REPOSITORY:$IMAGE_TAG .
 
       - name: Tag Docker image
         run: |
@@ -67,7 +64,13 @@ jobs:
             --source-configuration "{
               \"ImageRepository\": {
                 \"ImageIdentifier\": \"${{ env.ECR_REGISTRY }}/pokemon:${{ github.sha }}\",
-                \"ImageConfiguration\": {\"Port\": \"3000\"},
+                \"ImageConfiguration\": {
+                  \"Port\": \"3000\",
+                  \"RuntimeEnvironmentVariables\": {
+                    \"NEXT_PUBLIC_POKEMON_API_URL\": \"${{ env.NEXT_PUBLIC_POKEMON_API_URL }}\",
+                    \"NEXT_PUBLIC_TIME_API_URL\": \"${{ env.NEXT_PUBLIC_TIME_API_URL }}\"
+                  }
+                },
                 \"ImageRepositoryType\": \"ECR\"
               }
             }"
