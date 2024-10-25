@@ -1,14 +1,17 @@
+import { Suspense } from "react"
 import { FormSection } from "./components/Client"
 import { fetchCurrentTime } from "./lib/timeService"
 import styles from "./page.module.css"
 
-export const Home = async () => {
+const Home = async () => {
   const currentDate = await fetchCurrentTime()
 
   return (
     <div className={styles.page}>
       <main>
-        <FormSection currentDate={currentDate} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <FormSection currentDate={currentDate} />
+        </Suspense>
       </main>
     </div>
   )
