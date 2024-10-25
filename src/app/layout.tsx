@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import localFont from "next/font/local"
 import "./globals.css"
+import Providers from "./components/Client/Providers/Providers"
 
 const IBMVGA = localFont({
   src: "./fonts/Web437_IBM_VGA_9x16.woff",
@@ -20,7 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${IBMVGA.variable}`}>{children}</body>
+      <body className={`${IBMVGA.variable}`}>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }

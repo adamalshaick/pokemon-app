@@ -1,12 +1,17 @@
+import { FormSection } from "./components/Client"
+import { fetchCurrentTime } from "./lib/timeService"
 import styles from "./page.module.css"
-import { Date } from "./components/Server"
 
-export default function Home() {
+export const Home = async () => {
+  const currentDate = await fetchCurrentTime()
+
   return (
     <div className={styles.page}>
       <main>
-        <Date />
+        <FormSection currentDate={currentDate} />
       </main>
     </div>
   )
 }
+
+export default Home
