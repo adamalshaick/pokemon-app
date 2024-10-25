@@ -49,9 +49,9 @@ export const FormSection: FC<FormSectionType> = ({ currentDate }) => {
       trigger("selectInput")
     }
     setPokemonName(pokemonQuery || "")
-  }, [searchParams])
+  }, [setValue, trigger, searchParams])
 
-  const onSubmit = (data: { textInput: string; numberInput: number; selectInput: string }) => {
+  const onSubmit = () => {
     setSuccessModal(true)
   }
 

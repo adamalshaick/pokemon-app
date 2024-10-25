@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { DropdownItem, Loader, StyledAutocomplete, StyledDropdown, StyledFormControl, StyledLabel } from "./Autocomplete.styles"
 import { useDebounceCallback } from "usehooks-ts"
 import { UseFormRegister, UseFormSetValue, UseFormTrigger } from "react-hook-form"
-import Image from "next/image"
 
 type AutocompleteType = {
   isLoading: boolean

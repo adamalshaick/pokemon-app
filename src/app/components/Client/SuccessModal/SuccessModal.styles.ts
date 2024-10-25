@@ -1,5 +1,4 @@
 import styled from "styled-components"
-import { Button } from ".."
 
 export const ModalWrapper = styled.div`
   position: absolute;

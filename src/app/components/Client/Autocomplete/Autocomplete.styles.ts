@@ -1,4 +1,4 @@
-import { FormControl, Input } from "@mui/base"
+import { FormControl } from "@mui/base"
 import Image from "next/image"
 import styled, { keyframes } from "styled-components"
 
