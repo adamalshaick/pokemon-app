@@ -1,5 +1,5 @@
 export const fetchPokemon = async (pokemonName: string) => {
-  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`)
+  const response = await fetch(`${process.env.NEXT_PUBLIC_POKEMON_API_URL}/${pokemonName}`)
   if (!response.ok) {
     throw new Error("Pokemon not found")
   }

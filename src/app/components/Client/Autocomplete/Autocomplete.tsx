@@ -2,7 +2,7 @@
 
 import React, { FC, useCallback, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { DropdownItem, Loader, StyledAutocomplete, StyledDropdown, StyledFormControl, StyledLabel } from "./Autocomplete.styles"
+import { ArrowIcon, DropdownItem, Loader, StyledAutocomplete, StyledDropdown, StyledFormControl, StyledLabel } from "./Autocomplete.styles"
 import { useDebounceCallback } from "usehooks-ts"
 import { UseFormRegister, UseFormSetValue, UseFormTrigger } from "react-hook-form"
 
@@ -92,7 +92,7 @@ export const Autocomplete: FC<AutocompleteType> = (props) => {
           }}
           placeholder={placeholder}
         />
-        {isLoading ? <Loader src="/loader.svg" alt="Loading" width={17} height={17} /> : null}
+        {isLoading ? <Loader src="/loader.svg" alt="Loading" width={17} height={17} /> : dropdownOpen && pokemons.length ? <ArrowIcon width={17} height={17} src="/arrow1.svg" alt="arrow" /> : <ArrowIcon width={17} height={17} src="/arrow2.svg" alt="arrow" />}
       </div>
       {pokemons.length && dropdownOpen ? (
         <StyledDropdown id={id} {...register("selectInput")}>

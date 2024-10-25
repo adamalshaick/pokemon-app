@@ -62,7 +62,13 @@ export const DropdownItem = styled.li`
 
 export const Loader = styled(Image)`
   position: absolute;
-  right: 16px;
+  right: calc(${({ theme }) => `(${theme.spacing.lg} + ${theme.spacing.xxxs})`});
   top: 50%;
   animation: ${spin} 2s linear infinite;
+`
+
+export const ArrowIcon = styled(Image)`
+  position: absolute;
+  right: calc(${({ theme }) => `(${theme.spacing.lg} + ${theme.spacing.xxxs})`});
+  top: 50%;
 `

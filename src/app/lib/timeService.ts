@@ -1,5 +1,5 @@
-export const fetchCurrentTime = async (apiUrl = "https://www.timeapi.io/api/Time/current/zone?timeZone=Europe/Warsaw") => {
-  const res = await fetch(apiUrl, { next: { revalidate: 60 } })
+export const fetchCurrentTime = async () => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_TIME_API_URL}?timeZone=Europe/Warsaw`, { next: { revalidate: 60 } })
   const data = await res.json()
 
   if (!res.ok) {
