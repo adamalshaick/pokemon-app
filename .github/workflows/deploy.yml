@@ -13,10 +13,10 @@ jobs:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-      ECR_REPOSITORY: pokemon
+      ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}
       IMAGE_TAG: ${{ github.sha }}
-      NEXT_PUBLIC_POKEMON_API_URL: https://pokeapi.co/api/v2/pokemon
-      NEXT_PUBLIC_TIME_API_URL: https://www.timeapi.io/api/Time/current/zone
+      NEXT_PUBLIC_POKEMON_API_URL: ${{ secrets.POKEMON_API_URL }}
+      NEXT_PUBLIC_TIME_API_URL: ${{ secrets.TIME_API_URL }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -59,11 +59,11 @@ jobs:
 
       - name: Update AWS App Runner Service
         run: |
-          echo "Updating the existing App Runner service: pokemon"
-          aws apprunner update-service --service-arn $(aws apprunner list-services --query "ServiceSummaryList[?ServiceName=='pokemon'].ServiceArn" --output text) \
+          echo "Updating the existing App Runner service: $ECR_REPOSITORY"
+          aws apprunner update-service --service-arn $(aws apprunner list-services --query "ServiceSummaryList[?ServiceName=='${{ env.ECR_REPOSITORY }}'].ServiceArn" --output text) \
             --source-configuration "{
               \"ImageRepository\": {
-                \"ImageIdentifier\": \"${{ env.ECR_REGISTRY }}/pokemon:${{ github.sha }}\",
+                \"ImageIdentifier\": \"${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}\",
                 \"ImageConfiguration\": {
                   \"Port\": \"3000\",
                   \"RuntimeEnvironmentVariables\": {
