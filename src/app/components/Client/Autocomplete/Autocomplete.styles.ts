@@ -52,7 +52,7 @@ export const StyledDropdown = styled.ul`
 export const DropdownItem = styled.li`
   list-style: none;
   font-size: ${({ theme }) => theme.fontSizes.lg};
-  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.md}`};
   cursor: pointer;
 
   &:hover {
